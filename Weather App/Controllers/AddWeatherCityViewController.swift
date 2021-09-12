@@ -7,11 +7,15 @@
 
 import UIKit
 
+//MARK: - AddWeatherDelegate Protocol
+
 protocol AddWeatherDelegate {
     
     func addWeatherDidSave(vm: WeatherViewModel)
     
 }
+
+//MARK: - AddWeatherCityViewController
 
 class AddWeatherCityViewController : UIViewController {
     
@@ -20,6 +24,7 @@ class AddWeatherCityViewController : UIViewController {
     
     @IBOutlet weak var cityNameTextField : UITextField!
     
+    //MARK: - SAVE Button
     
     @IBAction func saveCityButtonPressed() {
          
@@ -32,6 +37,8 @@ class AddWeatherCityViewController : UIViewController {
         }
         
     }
+    
+    //MARK: - CLOSE Button
     
     @IBAction func close() {
      

@@ -10,23 +10,18 @@ import UIKit
 class WeatherListTableViewController : UITableViewController, AddWeatherDelegate {
     
     private var weatherListViewModel = WeahterListViewModel()
+    private var lastUnitSelection : Unit! 
      
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.navigationController?.navigationBar.prefersLargeTitles = true
         
-//        let resource = Resource<WeatherResponse>(url: URL(string: "api.openweathermap.org/data/2.5/weather?q=Montreal&appid=0466f7cc4f43dae0a50b81979402eaa9&units=imperial")!) { data in
-//            
-//            return try? JSONDecoder().decode(WeatherResponse.self, from: data)
-//        }
-//        
-//        WebService().load(resource: resource) { weatherResponse in
-//            
-//            if let weatherResponse = weatherResponse {
-//                print(weatherResponse)
-//            }
-//        }
+        let userDefaults = UserDefaults.standard
+        if let value = userDefaults.value(forKey: "unit") as? String {
+            self.lastUnitSelection = Unit(rawValue: value)
+        }
+        
     }
     
     //MARK: - AddWeatherDelegate Method
@@ -70,13 +65,26 @@ class WeatherListTableViewController : UITableViewController, AddWeatherDelegate
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         if segue.identifier == "AddWeatherCityViewController" {
-             
             prepareSegueForAddWeatherCityViewController(segue: segue)
-            
+        } else if segue.identifier == "SettingsTableViewController" {
+            prepareSegueForAddSettingsTableViewController(segue: segue)
+
         }
     }
     
+    func prepareSegueForAddSettingsTableViewController(segue: UIStoryboardSegue) {
+        
+        guard let nav = segue.destination as? UINavigationController else {
+            fatalError()
+        }
+        
+        guard let settingsTVC = nav.viewControllers.first as? SettingsTableViewController else {
+            fatalError()
+        }
+        settingsTVC.delegate = self
+    }
     
+
     func prepareSegueForAddWeatherCityViewController(segue: UIStoryboardSegue) {
         
         guard let nav = segue.destination as? UINavigationController else {
@@ -89,5 +97,17 @@ class WeatherListTableViewController : UITableViewController, AddWeatherDelegate
         
         addWeatherCityVC.delegate = self
     }
+}
+
+extension WeatherListTableViewController : SettingsDelegate {
     
+    func settingsDone(vm: SettingsViewModel) {
+        
+        if lastUnitSelection.rawValue != vm.selectedUnit.rawValue {
+            weatherListViewModel.updateUnit(to: vm.selectedUnit)
+            tableView.reloadData()
+            lastUnitSelection = Unit(rawValue: vm.selectedUnit.rawValue)
+        }
+        
+    }
 }
